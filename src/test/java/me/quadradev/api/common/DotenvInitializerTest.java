@@ -15,7 +15,7 @@ class DotenvInitializerTest {
     Path tempDir;
 
     @Test
-    void loadsDotenvProperties() throws IOException {
+    void insertsPropertiesFromDotenv() throws IOException {
         Files.writeString(tempDir.resolve(".env"), "TEST_KEY=dotenvValue\n");
         String originalUserDir = System.getProperty("user.dir");
         GenericApplicationContext context = new GenericApplicationContext();
