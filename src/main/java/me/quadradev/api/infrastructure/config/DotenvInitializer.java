@@ -1,4 +1,4 @@
-package me.quadradev.api.common;
+package me.quadradev.api.infrastructure.config;
 
 import io.github.cdimascio.dotenv.Dotenv;
 import java.util.HashMap;
