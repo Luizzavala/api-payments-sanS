@@ -2,6 +2,7 @@ package me.quadradev.application.core.service;
 
 import lombok.RequiredArgsConstructor;
 import me.quadradev.application.core.model.User;
+import me.quadradev.application.core.model.Person;
 import me.quadradev.application.core.model.UserStatus;
 import me.quadradev.application.core.repository.UserRepository;
 import me.quadradev.application.core.specification.UserSpecifications;
@@ -49,5 +50,48 @@ public class UserService {
                 .orElseThrow(() -> new ApiException("User not found", HttpStatus.NOT_FOUND));
         user.setStatus(UserStatus.INACTIVE);
         userRepository.save(user);
+    }
+
+    public User updateUser(Long id, User updatedUser) {
+        User existingUser = userRepository.findById(id)
+                .orElseThrow(() -> new ApiException("User not found", HttpStatus.NOT_FOUND));
+
+        if (updatedUser.getEmail() != null && !updatedUser.getEmail().equals(existingUser.getEmail())) {
+            userRepository.findByEmail(updatedUser.getEmail()).ifPresent(u -> {
+                throw new ApiException("Email already exists", HttpStatus.CONFLICT);
+            });
+            existingUser.setEmail(updatedUser.getEmail());
+        }
+
+        if (updatedUser.getPassword() != null && !updatedUser.getPassword().isBlank()) {
+            existingUser.setPassword(passwordEncoder.encode(updatedUser.getPassword()));
+        }
+
+        if (updatedUser.getPerson() != null) {
+            Person existingPerson = existingUser.getPerson();
+            if (existingPerson == null) {
+                existingPerson = new Person();
+            }
+            Person updatedPerson = updatedUser.getPerson();
+            if (updatedPerson.getFirstName() != null) {
+                existingPerson.setFirstName(updatedPerson.getFirstName());
+            }
+            if (updatedPerson.getMiddleName() != null) {
+                existingPerson.setMiddleName(updatedPerson.getMiddleName());
+            }
+            if (updatedPerson.getLastName() != null) {
+                existingPerson.setLastName(updatedPerson.getLastName());
+            }
+            if (updatedPerson.getSecondLastName() != null) {
+                existingPerson.setSecondLastName(updatedPerson.getSecondLastName());
+            }
+            existingUser.setPerson(existingPerson);
+        }
+
+        if (updatedUser.getStatus() != null) {
+            existingUser.setStatus(updatedUser.getStatus());
+        }
+
+        return userRepository.save(existingUser);
     }
 }
