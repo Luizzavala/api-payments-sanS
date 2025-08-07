@@ -1,5 +1,7 @@
 package me.quadradev.application.auth;
 
+import io.jsonwebtoken.ExpiredJwtException;
+import io.jsonwebtoken.JwtException;
 import lombok.RequiredArgsConstructor;
 import me.quadradev.application.core.model.User;
 import me.quadradev.application.core.repository.UserRepository;
@@ -32,10 +34,13 @@ public class AuthService {
     }
 
     public String refreshAccessToken(String refreshToken) {
-        if (!jwtProvider.validateToken(refreshToken)) {
-            throw new ApiException("Refresh token inválido o expirado", HttpStatus.UNAUTHORIZED);
+        try {
+            String email = jwtProvider.getEmailFromToken(refreshToken);
+            return jwtProvider.generateAccessToken(email);
+        } catch (ExpiredJwtException e) {
+            throw new ApiException("Refresh token expirado", HttpStatus.UNAUTHORIZED);
+        } catch (JwtException | IllegalArgumentException e) {
+            throw new ApiException("Refresh token inválido", HttpStatus.UNAUTHORIZED);
         }
-        String email = jwtProvider.getEmailFromToken(refreshToken);
-        return jwtProvider.generateAccessToken(email);
     }
 }
