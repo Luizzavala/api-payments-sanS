@@ -53,11 +53,13 @@ public class UserService {
     }
 
     public User updateUser(Long id, User updatedUser) {
-        User existingUser = userRepository.findById(id)
+        Specification<User> spec = Specification.where(UserSpecifications.hasId(id));
+        User existingUser = userRepository.findOne(spec)
                 .orElseThrow(() -> new ApiException("User not found", HttpStatus.NOT_FOUND));
 
         if (updatedUser.getEmail() != null && !updatedUser.getEmail().equals(existingUser.getEmail())) {
-            userRepository.findByEmail(updatedUser.getEmail()).ifPresent(u -> {
+            Specification<User> emailSpec = Specification.where(UserSpecifications.hasEmail(updatedUser.getEmail()));
+            userRepository.findOne(emailSpec).ifPresent(u -> {
                 throw new ApiException("Email already exists", HttpStatus.CONFLICT);
             });
             existingUser.setEmail(updatedUser.getEmail());

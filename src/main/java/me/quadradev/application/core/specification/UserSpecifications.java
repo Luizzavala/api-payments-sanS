@@ -6,6 +6,14 @@ import me.quadradev.application.core.model.*;
 import org.springframework.data.jpa.domain.Specification;
 
 public class UserSpecifications {
+    public static Specification<User> hasId(Long id) {
+        return (root, query, cb) -> {
+            if (id == null) {
+                return null;
+            }
+            return cb.equal(root.get(User_.id), id);
+        };
+    }
     public static Specification<User> hasEmail(String email) {
         return (root, query, cb) -> {
             if (email == null || email.isBlank()) {
