@@ -14,14 +14,23 @@ import java.time.LocalDate;
 @AllArgsConstructor
 @Builder
 public class Person {
-
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
-    private String nombre;
-    private String apellido;
-    private LocalDate fechaNacimiento;
+    private String firstName;
+
+    @Column(nullable = true)
+    private String middleName;
+
+    private String lastName;
+
+    @Column(nullable = true)
+    private String secondLastName;
+
+    private String phoneNumber;
+
+    private String address;
 
     @OneToOne(mappedBy = "person")
     private User user;
