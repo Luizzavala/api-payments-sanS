@@ -30,6 +30,9 @@ public class UserService {
     }
 
     public User createUser(User user) {
+        if (userRepository.findByEmail(user.getEmail()).isPresent()) {
+            throw new ApiException("Email already exists", HttpStatus.CONFLICT);
+        }
         user.setPassword(passwordEncoder.encode(user.getPassword()));
         return userRepository.save(user);
     }
