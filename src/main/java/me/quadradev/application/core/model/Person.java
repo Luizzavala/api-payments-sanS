@@ -1,5 +1,6 @@
 package me.quadradev.application.core.model;
 
+import com.fasterxml.jackson.annotation.JsonIgnore;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -28,10 +29,7 @@ public class Person {
     @Column(nullable = true)
     private String secondLastName;
 
-    private String phoneNumber;
-
-    private String address;
-
     @OneToOne(mappedBy = "person")
+    @JsonIgnore
     private User user;
 }
