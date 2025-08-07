@@ -34,7 +34,7 @@ public class SecurityConfig {
 
     private final JwtFilter jwtFilter;
 
-    @Value("${DEV_MODE:true}")
+    @Value("${DEV_MODE}")
     private boolean devMode;
 
     @Bean
