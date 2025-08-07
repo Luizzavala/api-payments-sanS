@@ -36,6 +36,12 @@ public class UserController {
         return ResponseEntity.status(HttpStatus.CREATED).body(created);
     }
 
+    @PutMapping("/{id}")
+    public ResponseEntity<User> update(@PathVariable Long id, @RequestBody User user) {
+        User updated = userService.updateUser(id, user);
+        return ResponseEntity.ok(updated);
+    }
+
     @GetMapping("/search")
     public ResponseEntity<ApiResponse<List<User>>> searchUsers(
             @RequestParam(required = false) String email,
