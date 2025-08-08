@@ -11,6 +11,7 @@ import me.quadradev.common.security.JwtProvider;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
 @RequiredArgsConstructor
@@ -20,6 +21,7 @@ public class AuthService {
     private final JwtProvider jwtProvider;
     private final PasswordEncoder passwordEncoder;
 
+    @Transactional(readOnly = true)
     public AuthTokens login(String email, String password) {
         User user = userRepository.findByEmail(email)
                 .orElseThrow(() -> new ApiException("Credenciales inválidas", HttpStatus.UNAUTHORIZED));
@@ -46,6 +48,7 @@ public class AuthService {
      * validation prevents the reuse of refresh tokens from deleted or disabled
      * accounts, reinforcing the security of the refresh flow.</p>
      */
+    @Transactional(readOnly = true)
     public AuthTokens refreshAccessToken(String refreshToken) {
         try {
             // Validate token (signature + expiration) and extract the user identifier

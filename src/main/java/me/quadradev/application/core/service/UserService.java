@@ -11,6 +11,7 @@ import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.http.HttpStatus;
 import org.springframework.data.jpa.domain.Specification;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Optional;
@@ -22,14 +23,17 @@ public class UserService {
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
 
+    @Transactional(readOnly = true)
     public List<User> findAll() {
         return userRepository.findAll();
     }
 
+    @Transactional(readOnly = true)
     public Optional<User> findById(Long id) {
         return userRepository.findById(id);
     }
 
+    @Transactional
     public User createUser(User user) {
         if (userRepository.findByEmail(user.getEmail()).isPresent()) {
             throw new ApiException("Email already exists", HttpStatus.CONFLICT);
@@ -38,6 +42,7 @@ public class UserService {
         return userRepository.save(user);
     }
 
+    @Transactional(readOnly = true)
     public List<User> searchUsers(String email, UserStatus status, String name) {
         Specification<User> spec = Specification.where(UserSpecifications.hasEmail(email))
                 .and(UserSpecifications.hasStatus(status))
@@ -45,6 +50,7 @@ public class UserService {
         return userRepository.findAll(spec);
     }
 
+    @Transactional
     public void deactivateUser(Long id) {
         User user = userRepository.findById(id)
                 .orElseThrow(() -> new ApiException("User not found", HttpStatus.NOT_FOUND));
@@ -52,6 +58,7 @@ public class UserService {
         userRepository.save(user);
     }
 
+    @Transactional
     public User updateUser(Long id, User updatedUser) {
         Specification<User> spec = Specification.where(UserSpecifications.hasId(id));
         User existingUser = userRepository.findOne(spec)
