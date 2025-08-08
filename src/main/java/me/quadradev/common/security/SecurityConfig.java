@@ -21,17 +21,6 @@ import java.util.List;
 @RequiredArgsConstructor
 public class SecurityConfig {
 
-    private static final String[] DEV_PUBLIC_ENDPOINTS = {
-            "/swagger-ui/**",
-            "/v3/api-docs/**",
-            "/api/auth/**",
-            "/api/users/**"
-    };
-
-    private static final String[] PROD_PUBLIC_ENDPOINTS = {
-            "/api/auth/**"
-    };
-
     private final JwtFilter jwtFilter;
 
     @Value("${DEV_MODE}")
@@ -39,13 +28,13 @@ public class SecurityConfig {
 
     @Bean
     public SecurityFilterChain securityFilterChain(HttpSecurity http) throws Exception {
-        String[] enpoints = devMode ? DEV_PUBLIC_ENDPOINTS : PROD_PUBLIC_ENDPOINTS;
+        String[] endpoints = devMode ? PublicEndpoints.DEV : PublicEndpoints.PROD;
         http
                 .csrf(csrf -> csrf.disable())
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()))
                 .sessionManagement(session -> session.sessionCreationPolicy(SessionCreationPolicy.STATELESS))
                 .authorizeHttpRequests(auth -> auth
-                        .requestMatchers(enpoints).permitAll()
+                        .requestMatchers(endpoints).permitAll()
                         .anyRequest().authenticated())
                 .addFilterBefore(jwtFilter, UsernamePasswordAuthenticationFilter.class);
         return http.build();

@@ -8,6 +8,7 @@ import me.quadradev.application.core.repository.UserRepository;
 import me.quadradev.common.exception.ApiException;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
+import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
 import java.util.Set;
@@ -20,6 +21,7 @@ public class RoleService {
     private final RoleRepository roleRepository;
     private final UserRepository userRepository;
 
+    @Transactional
     public Role createRole(Role role) {
         roleRepository.findByName(role.getName()).ifPresent(r -> {
             throw new ApiException("Role already exists", HttpStatus.CONFLICT);
@@ -27,6 +29,7 @@ public class RoleService {
         return roleRepository.save(role);
     }
 
+    @Transactional
     public User assignRolesToUser(Long userId, Set<String> roleNames) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new ApiException("User not found", HttpStatus.NOT_FOUND));
@@ -40,10 +43,12 @@ public class RoleService {
         return userRepository.save(user);
     }
 
+    @Transactional(readOnly = true)
     public List<User> findUsersByRole(String roleName) {
         return userRepository.findUsersByRoleName(roleName);
     }
 
+    @Transactional(readOnly = true)
     public Set<Role> getRolesByUser(Long userId) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new ApiException("User not found", HttpStatus.NOT_FOUND));
