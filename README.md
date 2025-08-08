@@ -1,6 +1,6 @@
-# API Payments
+# API Generic
 
-[Arquitectura](docs/architecture.md) | [Seguridad](docs/security.md)
+[Arquitectura](docs/architecture.md) | [Seguridad](docs/security.md) | [Licencia](LICENSE)
 
 ## Configuración del entorno
 
