@@ -24,9 +24,10 @@ public class AuthController {
 
     @PostMapping("/refresh")
     public ResponseEntity<Void> refresh(@RequestHeader("Refresh-Token") String refreshToken) {
-        String newAccessToken = authService.refreshAccessToken(refreshToken);
+        AuthTokens tokens = authService.refreshAccessToken(refreshToken);
         return ResponseEntity.ok()
-                .header(HttpHeaders.AUTHORIZATION, "Bearer " + newAccessToken)
+                .header(HttpHeaders.AUTHORIZATION, "Bearer " + tokens.accessToken())
+                .header("Refresh-Token", tokens.refreshToken())
                 .build();
     }
 }

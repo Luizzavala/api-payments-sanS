@@ -38,10 +38,33 @@ public class AuthService {
         );
     }
 
-    public String refreshAccessToken(String refreshToken) {
+    /**
+     * Refreshes the authentication tokens using the provided refresh token.
+     *
+     * <p>The method not only validates the token signature/expiration but also
+     * verifies that the associated user still exists and is active. This extra
+     * validation prevents the reuse of refresh tokens from deleted or disabled
+     * accounts, reinforcing the security of the refresh flow.</p>
+     */
+    public AuthTokens refreshAccessToken(String refreshToken) {
         try {
+            // Validate token (signature + expiration) and extract the user identifier
             String email = jwtProvider.getEmailFromToken(refreshToken);
-            return jwtProvider.generateAccessToken(email);
+
+            // Look up the user and ensure it is active; otherwise reject the request
+            User user = userRepository.findByEmail(email)
+                    .orElseThrow(() -> new ApiException("Usuario no encontrado", HttpStatus.UNAUTHORIZED));
+
+            if (user.getStatus() != UserStatus.ACTIVE) {
+                throw new ApiException("Usuario inactivo", HttpStatus.FORBIDDEN);
+            }
+
+            // Generate and return new token pair
+            return new AuthTokens(
+                    jwtProvider.generateAccessToken(email),
+                    jwtProvider.generateRefreshToken(email)
+            );
+
         } catch (ExpiredJwtException e) {
             throw new ApiException("Refresh token expirado", HttpStatus.UNAUTHORIZED);
         } catch (JwtException | IllegalArgumentException e) {
