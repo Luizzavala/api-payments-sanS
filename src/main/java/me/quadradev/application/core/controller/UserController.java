@@ -12,7 +12,6 @@ import io.swagger.v3.oas.annotations.security.SecurityRequirement;
 
 import java.util.List;
 
-@SecurityRequirement(name = "bearerAuth")
 @RestController
 @RequestMapping("/api/users")
 @RequiredArgsConstructor
