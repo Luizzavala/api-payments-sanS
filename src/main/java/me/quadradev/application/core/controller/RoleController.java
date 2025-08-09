@@ -1,6 +1,7 @@
 package me.quadradev.application.core.controller;
 
 import jakarta.validation.Valid;
+import jakarta.validation.constraints.NotBlank;
 import lombok.RequiredArgsConstructor;
 import me.quadradev.application.core.dto.RoleDto;
 import me.quadradev.application.core.dto.RoleRequest;
@@ -33,7 +34,7 @@ public class RoleController {
     }
 
     @PostMapping("/{userId}/assign")
-    public ResponseEntity<UserDto> assignRoles(@PathVariable Long userId, @RequestBody @Valid Set<String> roles) {
+    public ResponseEntity<UserDto> assignRoles(@PathVariable Long userId, @RequestBody Set<@NotBlank String> roles) {
         User user = roleService.assignRolesToUser(userId, roles);
         return ResponseEntity.ok(UserDto.fromEntity(user));
     }
