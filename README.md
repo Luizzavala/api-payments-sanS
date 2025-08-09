@@ -15,6 +15,9 @@ El archivo `application.properties` toma los datos de conexión a la base de dat
 desde las variables definidas en `.env` (`DB_HOST`, `DB_PORT`, `DB_NAME`, `DB_USERNAME`
 y `DB_PASSWORD`).
 
+Para restringir el acceso CORS de la API, define la variable `CORS_ALLOWED_ORIGINS`
+con una lista de orígenes separados por comas que podrán consumir los servicios.
+
 ## Licencia
 
 Este proyecto se distribuye bajo la licencia [MIT](LICENSE).
