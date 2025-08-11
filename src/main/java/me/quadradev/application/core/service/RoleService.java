@@ -1,6 +1,11 @@
 package me.quadradev.application.core.service;
 
 import lombok.RequiredArgsConstructor;
+import me.quadradev.application.core.dto.RoleDto;
+import me.quadradev.application.core.dto.RoleRequest;
+import me.quadradev.application.core.dto.UserDto;
+import me.quadradev.application.core.mapper.RoleMapper;
+import me.quadradev.application.core.mapper.UserMapper;
 import me.quadradev.application.core.model.Role;
 import me.quadradev.application.core.model.User;
 import me.quadradev.application.core.repository.RoleRepository;
@@ -20,17 +25,21 @@ public class RoleService {
 
     private final RoleRepository roleRepository;
     private final UserRepository userRepository;
+    private final RoleMapper roleMapper;
+    private final UserMapper userMapper;
 
     @Transactional
-    public Role createRole(Role role) {
-        roleRepository.findByName(role.getName()).ifPresent(r -> {
+    public RoleDto createRole(RoleRequest request) {
+        roleRepository.findByName(request.name()).ifPresent(r -> {
             throw new ApiException("Role already exists", HttpStatus.CONFLICT);
         });
-        return roleRepository.save(role);
+        Role role = roleMapper.toEntity(request);
+        Role saved = roleRepository.save(role);
+        return roleMapper.toDto(saved);
     }
 
     @Transactional
-    public User assignRolesToUser(Long userId, Set<String> roleNames) {
+    public UserDto assignRolesToUser(Long userId, Set<String> roleNames) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new ApiException("User not found", HttpStatus.NOT_FOUND));
 
@@ -40,18 +49,23 @@ public class RoleService {
                 .collect(Collectors.toSet());
 
         user.getRoles().addAll(roles);
-        return userRepository.save(user);
+        User saved = userRepository.save(user);
+        return userMapper.toDto(saved);
     }
 
     @Transactional(readOnly = true)
-    public List<User> findUsersByRole(String roleName) {
-        return userRepository.findUsersByRoleName(roleName);
+    public List<UserDto> findUsersByRole(String roleName) {
+        return userRepository.findUsersByRoleName(roleName).stream()
+                .map(userMapper::toDto)
+                .toList();
     }
 
     @Transactional(readOnly = true)
-    public Set<Role> getRolesByUser(Long userId) {
+    public Set<RoleDto> getRolesByUser(Long userId) {
         User user = userRepository.findById(userId)
                 .orElseThrow(() -> new ApiException("User not found", HttpStatus.NOT_FOUND));
-        return user.getRoles();
+        return user.getRoles().stream()
+                .map(roleMapper::toDto)
+                .collect(Collectors.toSet());
     }
 }

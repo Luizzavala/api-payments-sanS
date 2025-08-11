@@ -1,16 +1,18 @@
 package me.quadradev.application.core.service;
 
 import lombok.RequiredArgsConstructor;
+import me.quadradev.application.core.dto.UserDto;
+import me.quadradev.application.core.dto.UserRequest;
+import me.quadradev.application.core.mapper.UserMapper;
 import me.quadradev.application.core.model.User;
-import me.quadradev.application.core.model.Person;
 import me.quadradev.application.core.model.UserStatus;
 import me.quadradev.application.core.repository.UserRepository;
 import me.quadradev.application.core.specification.UserSpecifications;
 import me.quadradev.common.exception.ApiException;
+import org.springframework.data.jpa.domain.Specification;
+import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-import org.springframework.http.HttpStatus;
-import org.springframework.data.jpa.domain.Specification;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.util.List;
@@ -22,32 +24,35 @@ public class UserService {
 
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
+    private final UserMapper userMapper;
 
     @Transactional(readOnly = true)
-    public List<User> findAll() {
-        return userRepository.findAll();
+    public List<UserDto> findAll() {
+        return userMapper.toDtoList(userRepository.findAll());
     }
 
     @Transactional(readOnly = true)
-    public Optional<User> findById(Long id) {
-        return userRepository.findById(id);
+    public Optional<UserDto> findById(Long id) {
+        return userRepository.findById(id).map(userMapper::toDto);
     }
 
     @Transactional
-    public User createUser(User user) {
-        if (userRepository.findByEmail(user.getEmail()).isPresent()) {
+    public UserDto createUser(UserRequest request) {
+        if (userRepository.findByEmail(request.email()).isPresent()) {
             throw new ApiException("Email already exists", HttpStatus.CONFLICT);
         }
+        User user = userMapper.toEntity(request);
         user.setPassword(passwordEncoder.encode(user.getPassword()));
-        return userRepository.save(user);
+        User saved = userRepository.save(user);
+        return userMapper.toDto(saved);
     }
 
     @Transactional(readOnly = true)
-    public List<User> searchUsers(String email, UserStatus status, String name) {
+    public List<UserDto> searchUsers(String email, UserStatus status, String name) {
         Specification<User> spec = Specification.where(UserSpecifications.hasEmail(email))
                 .and(UserSpecifications.hasStatus(status))
                 .and(UserSpecifications.hasFirstName(name));
-        return userRepository.findAll(spec);
+        return userRepository.findAll(spec).stream().map(userMapper::toDto).toList();
     }
 
     @Transactional
@@ -59,45 +64,22 @@ public class UserService {
     }
 
     @Transactional
-    public User updateUser(Long id, User updatedUser) {
+    public UserDto updateUser(Long id, UserRequest request) {
         Specification<User> spec = Specification.where(UserSpecifications.hasId(id));
         User existingUser = userRepository.findOne(spec)
                 .orElseThrow(() -> new ApiException("User not found", HttpStatus.NOT_FOUND));
 
-        if (updatedUser.getEmail() != null && !updatedUser.getEmail().equals(existingUser.getEmail())) {
-            Specification<User> emailSpec = Specification.where(UserSpecifications.hasEmail(updatedUser.getEmail()));
+        if (request.email() != null && !request.email().equals(existingUser.getEmail())) {
+            Specification<User> emailSpec = Specification.where(UserSpecifications.hasEmail(request.email()));
             userRepository.findOne(emailSpec).ifPresent(u -> {
                 throw new ApiException("Email already exists", HttpStatus.CONFLICT);
             });
-            existingUser.setEmail(updatedUser.getEmail());
+            existingUser.setEmail(request.email());
         }
 
-        if (updatedUser.getPerson() != null) {
-            Person existingPerson = existingUser.getPerson();
-            if (existingPerson == null) {
-                existingPerson = new Person();
-            }
-            Person updatedPerson = updatedUser.getPerson();
-            if (updatedPerson.getFirstName() != null) {
-                existingPerson.setFirstName(updatedPerson.getFirstName());
-            }
-            if (updatedPerson.getMiddleName() != null) {
-                existingPerson.setMiddleName(updatedPerson.getMiddleName());
-            }
-            if (updatedPerson.getLastName() != null) {
-                existingPerson.setLastName(updatedPerson.getLastName());
-            }
-            if (updatedPerson.getSecondLastName() != null) {
-                existingPerson.setSecondLastName(updatedPerson.getSecondLastName());
-            }
-            existingUser.setPerson(existingPerson);
-        }
-
-        if (updatedUser.getStatus() != null) {
-            existingUser.setStatus(updatedUser.getStatus());
-        }
-
-        return userRepository.save(existingUser);
+        userMapper.updateUserFromRequest(request, existingUser);
+        User updated = userRepository.save(existingUser);
+        return userMapper.toDto(updated);
     }
 
     @Transactional
