@@ -2,10 +2,9 @@ package me.quadradev.application.core.controller;
 
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
+import me.quadradev.application.core.dto.ChangePasswordRequest;
 import me.quadradev.application.core.dto.UserDto;
 import me.quadradev.application.core.dto.UserRequest;
-import me.quadradev.application.core.dto.ChangePasswordRequest;
-import me.quadradev.application.core.model.User;
 import me.quadradev.application.core.model.UserStatus;
 import me.quadradev.application.core.service.UserService;
 import me.quadradev.common.util.ApiResponse;
@@ -26,26 +25,26 @@ public class UserController {
 
     @GetMapping
     public List<UserDto> findAll() {
-        return userService.findAll().stream().map(UserDto::fromEntity).toList();
+        return userService.findAll();
     }
 
     @GetMapping("/{id}")
     public ResponseEntity<UserDto> findById(@PathVariable Long id) {
         return userService.findById(id)
-                .map(user -> ResponseEntity.ok(UserDto.fromEntity(user)))
+                .map(ResponseEntity::ok)
                 .orElse(ResponseEntity.notFound().build());
     }
 
     @PostMapping
     public ResponseEntity<UserDto> create(@RequestBody @Valid UserRequest request) {
-        User created = userService.createUser(request.toEntity());
-        return ResponseEntity.status(HttpStatus.CREATED).body(UserDto.fromEntity(created));
+        UserDto created = userService.createUser(request);
+        return ResponseEntity.status(HttpStatus.CREATED).body(created);
     }
 
     @PutMapping("/{id}")
     public ResponseEntity<UserDto> update(@PathVariable Long id, @RequestBody @Valid UserRequest request) {
-        User updated = userService.updateUser(id, request.toEntity());
-        return ResponseEntity.ok(UserDto.fromEntity(updated));
+        UserDto updated = userService.updateUser(id, request);
+        return ResponseEntity.ok(updated);
     }
 
     @PutMapping("/{id}/password")
@@ -59,8 +58,7 @@ public class UserController {
             @RequestParam(required = false) String email,
             @RequestParam(required = false) UserStatus status,
             @RequestParam(required = false) String name) {
-        List<UserDto> users = userService.searchUsers(email, status, name).stream()
-                .map(UserDto::fromEntity).toList();
+        List<UserDto> users = userService.searchUsers(email, status, name);
         return ResponseEntity.ok(ApiResponse.ok("Users retrieved", users));
     }
 }
