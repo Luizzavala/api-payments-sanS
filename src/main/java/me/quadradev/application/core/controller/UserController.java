@@ -4,6 +4,7 @@ import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import me.quadradev.application.core.dto.UserDto;
 import me.quadradev.application.core.dto.UserRequest;
+import me.quadradev.application.core.dto.ChangePasswordRequest;
 import me.quadradev.application.core.model.User;
 import me.quadradev.application.core.model.UserStatus;
 import me.quadradev.application.core.service.UserService;
@@ -45,6 +46,12 @@ public class UserController {
     public ResponseEntity<UserDto> update(@PathVariable Long id, @RequestBody @Valid UserRequest request) {
         User updated = userService.updateUser(id, request.toEntity());
         return ResponseEntity.ok(UserDto.fromEntity(updated));
+    }
+
+    @PutMapping("/{id}/password")
+    public ResponseEntity<Void> changePassword(@PathVariable Long id, @RequestBody @Valid ChangePasswordRequest request) {
+        userService.changePassword(id, request.currentPassword(), request.newPassword());
+        return ResponseEntity.noContent().build();
     }
 
     @GetMapping("/search")

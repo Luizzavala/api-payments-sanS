@@ -72,10 +72,6 @@ public class UserService {
             existingUser.setEmail(updatedUser.getEmail());
         }
 
-        if (updatedUser.getPassword() != null && !updatedUser.getPassword().isBlank()) {
-            existingUser.setPassword(passwordEncoder.encode(updatedUser.getPassword()));
-        }
-
         if (updatedUser.getPerson() != null) {
             Person existingPerson = existingUser.getPerson();
             if (existingPerson == null) {
@@ -102,5 +98,16 @@ public class UserService {
         }
 
         return userRepository.save(existingUser);
+    }
+
+    @Transactional
+    public void changePassword(Long id, String currentPassword, String newPassword) {
+        User user = userRepository.findById(id)
+                .orElseThrow(() -> new ApiException("User not found", HttpStatus.NOT_FOUND));
+        if (!passwordEncoder.matches(currentPassword, user.getPassword())) {
+            throw new ApiException("Current password is incorrect", HttpStatus.UNAUTHORIZED);
+        }
+        user.setPassword(passwordEncoder.encode(newPassword));
+        userRepository.save(user);
     }
 }
