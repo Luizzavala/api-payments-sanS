@@ -8,12 +8,12 @@ import me.quadradev.application.core.dto.UserRequest;
 import me.quadradev.application.core.model.UserStatus;
 import me.quadradev.application.core.service.UserService;
 import me.quadradev.common.util.ApiResponse;
+import me.quadradev.common.util.PageResponse;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
-
-import java.util.List;
 
 @RestController
 @RequestMapping("/api/users")
@@ -24,8 +24,8 @@ public class UserController {
     private final UserService userService;
 
     @GetMapping
-    public List<UserDto> findAll() {
-        return userService.findAll();
+    public PageResponse<UserDto> findAll(Pageable pageable) {
+        return PageResponse.of(userService.findAll(pageable));
     }
 
     @GetMapping("/{id}")
@@ -54,11 +54,12 @@ public class UserController {
     }
 
     @GetMapping("/search")
-    public ResponseEntity<ApiResponse<List<UserDto>>> searchUsers(
+    public ResponseEntity<ApiResponse<PageResponse<UserDto>>> searchUsers(
             @RequestParam(required = false) String email,
             @RequestParam(required = false) UserStatus status,
-            @RequestParam(required = false) String name) {
-        List<UserDto> users = userService.searchUsers(email, status, name);
-        return ResponseEntity.ok(ApiResponse.ok("Users retrieved", users));
+            @RequestParam(required = false) String name,
+            Pageable pageable) {
+        return ResponseEntity.ok(ApiResponse.ok("Users retrieved",
+                PageResponse.of(userService.searchUsers(email, status, name, pageable))));
     }
 }
