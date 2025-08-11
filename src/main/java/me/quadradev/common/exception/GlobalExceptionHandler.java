@@ -4,12 +4,14 @@ import java.util.List;
 import java.util.UUID;
 
 import jakarta.persistence.EntityNotFoundException;
+import jakarta.persistence.OptimisticLockException;
 import jakarta.validation.ConstraintViolationException;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.dao.DataIntegrityViolationException;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
+import org.springframework.orm.ObjectOptimisticLockingFailureException;
 import org.springframework.security.access.AccessDeniedException;
 import org.springframework.security.core.AuthenticationException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
@@ -111,6 +113,19 @@ public class GlobalExceptionHandler {
         ErrorResponse body = ErrorResponse.builder()
                 .code(HttpStatus.CONFLICT.value())
                 .message("Data integrity violation")
+                .detail(ex.getMessage())
+                .traceId(traceId)
+                .build();
+        return ResponseEntity.status(HttpStatus.CONFLICT).body(body);
+    }
+
+    @ExceptionHandler({OptimisticLockException.class, ObjectOptimisticLockingFailureException.class})
+    public ResponseEntity<ErrorResponse> handleOptimisticLock(Exception ex) {
+        String traceId = UUID.randomUUID().toString();
+        log.warn("Optimistic locking failure traceId={}", traceId, ex);
+        ErrorResponse body = ErrorResponse.builder()
+                .code(HttpStatus.CONFLICT.value())
+                .message("Resource version conflict")
                 .detail(ex.getMessage())
                 .traceId(traceId)
                 .build();

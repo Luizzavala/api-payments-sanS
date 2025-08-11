@@ -6,7 +6,9 @@ import lombok.*;
 import java.util.HashSet;
 import java.util.Set;
 @Entity
-@Table(name = "core_roles")
+@Table(name = "core_roles", indexes = {
+        @Index(name = "idx_core_roles_name", columnList = "name", unique = true)
+})
 @Getter
 @Setter
 @NoArgsConstructor
@@ -17,6 +19,9 @@ public class Role {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
+    @Version
+    private Long version;
 
     @Column(unique = true, nullable = false)
     private String name;

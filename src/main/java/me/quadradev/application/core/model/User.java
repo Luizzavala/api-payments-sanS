@@ -16,7 +16,9 @@ import java.util.HashSet;
 import java.util.Set;
 
 @Entity
-@Table(name = "core_users")
+@Table(name = "core_users", indexes = {
+        @Index(name = "idx_core_users_email", columnList = "email", unique = true)
+})
 @EntityListeners(AuditingEntityListener.class)
 @Getter
 @Setter
@@ -28,6 +30,9 @@ public class User {
     @Id
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
+
+    @Version
+    private Long version;
 
     @JsonProperty(access = JsonProperty.Access.WRITE_ONLY)
     private String password;

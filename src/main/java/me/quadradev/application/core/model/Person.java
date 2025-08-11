@@ -20,6 +20,9 @@ public class Person {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long id;
 
+    @Version
+    private Long version;
+
     private String firstName;
 
     @Column(nullable = true)
