@@ -10,7 +10,7 @@ import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
-@Mapper(componentModel = "spring")
+@Mapper(config = MapStructConfig.class)
 public interface UserMapper {
 
     @Mapping(target = "firstName", source = "person.firstName")
@@ -30,7 +30,6 @@ public interface UserMapper {
     @Mapping(target = "id", ignore = true)
     User toEntity(UserRequest request);
 
-    @BeanMapping(nullValuePropertyMappingStrategy = NullValuePropertyMappingStrategy.IGNORE)
     @Mapping(target = "person.firstName", source = "firstName")
     @Mapping(target = "person.middleName", source = "middleName")
     @Mapping(target = "person.lastName", source = "lastName")
