@@ -7,12 +7,13 @@ import me.quadradev.application.core.dto.RoleDto;
 import me.quadradev.application.core.dto.RoleRequest;
 import me.quadradev.application.core.dto.UserDto;
 import me.quadradev.application.core.service.RoleService;
+import me.quadradev.common.util.PageResponse;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.ResponseEntity;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
 
-import java.util.List;
 import java.util.Set;
 
 
@@ -37,8 +38,8 @@ public class RoleController {
     }
 
     @GetMapping("/{roleName}/users")
-    public List<UserDto> getUsersByRole(@PathVariable String roleName) {
-        return roleService.findUsersByRole(roleName);
+    public PageResponse<UserDto> getUsersByRole(@PathVariable String roleName, Pageable pageable) {
+        return PageResponse.of(roleService.findUsersByRole(roleName, pageable));
     }
 
     @GetMapping("/user/{userId}")

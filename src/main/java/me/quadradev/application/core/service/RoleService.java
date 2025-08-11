@@ -11,11 +11,12 @@ import me.quadradev.application.core.model.User;
 import me.quadradev.application.core.repository.RoleRepository;
 import me.quadradev.application.core.repository.UserRepository;
 import me.quadradev.common.exception.ApiException;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.http.HttpStatus;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -54,10 +55,9 @@ public class RoleService {
     }
 
     @Transactional(readOnly = true)
-    public List<UserDto> findUsersByRole(String roleName) {
-        return userRepository.findUsersByRoleName(roleName).stream()
-                .map(userMapper::toDto)
-                .toList();
+    public Page<UserDto> findUsersByRole(String roleName, Pageable pageable) {
+        return userRepository.findUsersByRoleName(roleName, pageable)
+                .map(userMapper::toDto);
     }
 
     @Transactional(readOnly = true)

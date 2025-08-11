@@ -6,7 +6,6 @@ import me.quadradev.application.core.model.Role;
 import me.quadradev.application.core.model.User;
 import org.mapstruct.*;
 
-import java.util.List;
 import java.util.Set;
 import java.util.stream.Collectors;
 
@@ -19,8 +18,6 @@ public interface UserMapper {
     @Mapping(target = "secondLastName", source = "person.secondLastName")
     @Mapping(target = "roles", source = "roles", qualifiedByName = "rolesToNames")
     UserDto toDto(User user);
-
-    List<UserDto> toDtoList(List<User> users);
 
     @Mapping(target = "person.firstName", source = "firstName")
     @Mapping(target = "person.middleName", source = "middleName")

@@ -9,13 +9,14 @@ import me.quadradev.application.core.model.UserStatus;
 import me.quadradev.application.core.repository.UserRepository;
 import me.quadradev.application.core.specification.UserSpecifications;
 import me.quadradev.common.exception.ApiException;
+import org.springframework.data.domain.Page;
+import org.springframework.data.domain.Pageable;
 import org.springframework.data.jpa.domain.Specification;
 import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
-import java.util.List;
 import java.util.Optional;
 
 @Service
@@ -27,8 +28,8 @@ public class UserService {
     private final UserMapper userMapper;
 
     @Transactional(readOnly = true)
-    public List<UserDto> findAll() {
-        return userMapper.toDtoList(userRepository.findAll());
+    public Page<UserDto> findAll(Pageable pageable) {
+        return userRepository.findAll(pageable).map(userMapper::toDto);
     }
 
     @Transactional(readOnly = true)
@@ -48,11 +49,11 @@ public class UserService {
     }
 
     @Transactional(readOnly = true)
-    public List<UserDto> searchUsers(String email, UserStatus status, String name) {
+    public Page<UserDto> searchUsers(String email, UserStatus status, String name, Pageable pageable) {
         Specification<User> spec = Specification.where(UserSpecifications.hasEmail(email))
                 .and(UserSpecifications.hasStatus(status))
                 .and(UserSpecifications.hasFirstName(name));
-        return userRepository.findAll(spec).stream().map(userMapper::toDto).toList();
+        return userRepository.findAll(spec, pageable).map(userMapper::toDto);
     }
 
     @Transactional
