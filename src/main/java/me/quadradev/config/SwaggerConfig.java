@@ -1,10 +1,16 @@
 package me.quadradev.config;
 
+import io.swagger.v3.oas.models.Components;
 import io.swagger.v3.oas.models.OpenAPI;
 import io.swagger.v3.oas.models.info.Info;
-import io.swagger.v3.oas.models.Components;
+import io.swagger.v3.oas.models.media.Content;
+import io.swagger.v3.oas.models.media.MediaType;
+import io.swagger.v3.oas.models.media.Schema;
+import io.swagger.v3.oas.models.responses.ApiResponse;
+import io.swagger.v3.oas.models.responses.ApiResponses;
 import io.swagger.v3.oas.models.security.SecurityRequirement;
 import io.swagger.v3.oas.models.security.SecurityScheme;
+import org.springdoc.core.customizers.OpenApiCustomiser;
 import org.springframework.context.annotation.Bean;
 import org.springframework.context.annotation.Configuration;
 
@@ -21,5 +27,22 @@ public class SwaggerConfig {
                                 .scheme("bearer")
                                 .bearerFormat("JWT")))
                 .info(new Info().title("API").version("1.0"));
+    }
+
+    @Bean
+    public OpenApiCustomiser errorResponses() {
+        return openApi -> openApi.getPaths().values().forEach(pathItem ->
+                pathItem.readOperations().forEach(operation -> {
+                    ApiResponses responses = operation.getResponses();
+                    responses.addApiResponse("4XX", errorApiResponse("Client error"));
+                    responses.addApiResponse("5XX", errorApiResponse("Server error"));
+                }));
+    }
+
+    private ApiResponse errorApiResponse(String description) {
+        Schema<?> schema = new Schema<>().$ref("#/components/schemas/ErrorResponse");
+        MediaType mediaType = new MediaType().schema(schema);
+        Content content = new Content().addMediaType(org.springframework.http.MediaType.APPLICATION_JSON_VALUE, mediaType);
+        return new ApiResponse().description(description).content(content);
     }
 }
