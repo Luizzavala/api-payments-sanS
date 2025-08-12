@@ -25,6 +25,9 @@ public interface UserMapper {
     @Mapping(target = "person.secondLastName", source = "secondLastName")
     @Mapping(target = "roles", ignore = true)
     @Mapping(target = "id", ignore = true)
+    @Mapping(target = "version", ignore = true)
+    @Mapping(target = "createdAt", ignore = true)
+    @Mapping(target = "updatedAt", ignore = true)
     User toEntity(UserRequest request);
 
     @Mapping(target = "person.firstName", source = "firstName")
@@ -35,6 +38,9 @@ public interface UserMapper {
     @Mapping(target = "id", ignore = true)
     @Mapping(target = "email", ignore = true)
     @Mapping(target = "password", ignore = true)
+    @Mapping(target = "version", ignore = true)
+    @Mapping(target = "createdAt", ignore = true)
+    @Mapping(target = "updatedAt", ignore = true)
     void updateUserFromRequest(UserRequest request, @MappingTarget User user);
 
     @Named("rolesToNames")
