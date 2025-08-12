@@ -29,4 +29,8 @@ public class Role {
     @Builder.Default
     @ManyToMany(mappedBy = "roles", fetch = FetchType.LAZY)
     private Set<User> users = new HashSet<>();
+
+    @Builder.Default
+    @OneToMany(mappedBy = "role", cascade = CascadeType.ALL, orphanRemoval = true)
+    private Set<RoleMenuPermission> menuPermissions = new HashSet<>();
 }
