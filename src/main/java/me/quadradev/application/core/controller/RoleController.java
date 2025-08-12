@@ -6,6 +6,7 @@ import lombok.RequiredArgsConstructor;
 import me.quadradev.application.core.dto.RoleDto;
 import me.quadradev.application.core.dto.RoleRequest;
 import me.quadradev.application.core.dto.UserDto;
+import me.quadradev.application.core.dto.RolePermissionRequest;
 import me.quadradev.application.core.service.RoleService;
 import me.quadradev.common.util.PageResponse;
 import org.springframework.data.domain.Pageable;
@@ -45,5 +46,12 @@ public class RoleController {
     @GetMapping("/user/{userId}")
     public Set<RoleDto> getRolesByUser(@PathVariable Long userId) {
         return roleService.getRolesByUser(userId);
+    }
+
+    @PostMapping("/{roleId}/permissions")
+    public ResponseEntity<Void> updatePermissions(@PathVariable Long roleId,
+                                                  @RequestBody @Valid RolePermissionRequest request) {
+        roleService.updateMenuPermissions(roleId, request.menuId(), request.actions());
+        return ResponseEntity.ok().build();
     }
 }
