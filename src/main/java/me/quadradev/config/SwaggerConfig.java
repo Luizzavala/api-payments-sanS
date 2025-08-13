@@ -34,8 +34,11 @@ public class SwaggerConfig {
         return openApi -> openApi.getPaths().values().forEach(pathItem ->
                 pathItem.readOperations().forEach(operation -> {
                     ApiResponses responses = operation.getResponses();
-                    responses.addApiResponse("4XX", errorApiResponse("Client error"));
-                    responses.addApiResponse("5XX", errorApiResponse("Server error"));
+                    responses.addApiResponse("400", errorApiResponse("Bad Request"));
+                    responses.addApiResponse("401", errorApiResponse("Unauthorized"));
+                    responses.addApiResponse("403", errorApiResponse("Forbidden"));
+                    responses.addApiResponse("404", errorApiResponse("Not Found"));
+                    responses.addApiResponse("500", errorApiResponse("Internal Server Error"));
                 }));
     }
 
