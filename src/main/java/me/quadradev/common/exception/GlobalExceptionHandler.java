@@ -18,6 +18,7 @@ import org.springframework.security.core.AuthenticationException;
 import org.springframework.web.bind.MethodArgumentNotValidException;
 import org.springframework.web.bind.annotation.ExceptionHandler;
 import org.springframework.web.bind.annotation.RestControllerAdvice;
+import org.springframework.web.servlet.NoHandlerFoundException;
 
 @RestControllerAdvice
 public class GlobalExceptionHandler {
@@ -76,6 +77,13 @@ public class GlobalExceptionHandler {
     log.error("Data integrity violation", ex);
     ErrorResponse body = buildResponse(HttpStatus.CONFLICT, "Data integrity violation", request.getRequestURI());
     return ResponseEntity.status(HttpStatus.CONFLICT).body(body);
+  }
+
+  @ExceptionHandler(NoHandlerFoundException.class)
+  public ResponseEntity<ErrorResponse> handleNoHandlerFound(NoHandlerFoundException ex, HttpServletRequest request) {
+    log.warn("No handler found", ex);
+    ErrorResponse body = buildResponse(HttpStatus.NOT_FOUND, "Resource not found", request.getRequestURI());
+    return ResponseEntity.status(HttpStatus.NOT_FOUND).body(body);
   }
 
   @ExceptionHandler({OptimisticLockException.class, ObjectOptimisticLockingFailureException.class})
