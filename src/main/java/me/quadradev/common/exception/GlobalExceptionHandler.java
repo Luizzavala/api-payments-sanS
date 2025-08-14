@@ -101,12 +101,11 @@ public class GlobalExceptionHandler {
   }
 
   private ErrorResponse buildResponse(HttpStatus status, String message, String path) {
-    ErrorResponse response = new ErrorResponse();
-    response.setStatus(status.value());
-    response.setError(status.getReasonPhrase());
-    response.setMessage(message);
-    response.setPath(path);
-    response.setTimestamp(OffsetDateTime.now().toString());
-    return response;
+    return new ErrorResponse(
+        status.value(),
+        status.getReasonPhrase(),
+        message,
+        path,
+        OffsetDateTime.now().toString());
   }
 }
