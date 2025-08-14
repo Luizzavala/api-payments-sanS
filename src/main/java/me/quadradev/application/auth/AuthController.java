@@ -14,20 +14,20 @@ public class AuthController {
     private final AuthService authService;
 
     @PostMapping("/login")
-    public ResponseEntity<Void> login(@RequestBody @Valid LoginRequest request) {
+    public ResponseEntity<AuthTokens> login(@RequestBody @Valid LoginRequest request) {
         AuthTokens tokens = authService.login(request.email(), request.password());
         return ResponseEntity.ok()
                 .header(HttpHeaders.AUTHORIZATION, "Bearer " + tokens.accessToken())
                 .header("Refresh-Token", tokens.refreshToken())
-                .build();
+                .body(tokens);
     }
 
     @PostMapping("/refresh")
-    public ResponseEntity<Void> refresh(@RequestHeader("Refresh-Token") String refreshToken) {
+    public ResponseEntity<AuthTokens> refresh(@RequestHeader("Refresh-Token") String refreshToken) {
         AuthTokens tokens = authService.refreshAccessToken(refreshToken);
         return ResponseEntity.ok()
                 .header(HttpHeaders.AUTHORIZATION, "Bearer " + tokens.accessToken())
                 .header("Refresh-Token", tokens.refreshToken())
-                .build();
+                .body(tokens);
     }
 }
