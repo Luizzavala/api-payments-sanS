@@ -66,15 +66,13 @@ public class UserService {
 
     @Transactional
     public UserDto updateUser(Long id, UserRequest request) {
-        Specification<User> spec = Specification.where(UserSpecifications.hasId(id));
-        User existingUser = userRepository.findOne(spec)
+        User existingUser = userRepository.findById(id)
                 .orElseThrow(() -> new ApiException("User not found", HttpStatus.NOT_FOUND));
 
         if (request.email() != null && !request.email().equals(existingUser.getEmail())) {
-            Specification<User> emailSpec = Specification.where(UserSpecifications.hasEmail(request.email()));
-            userRepository.findOne(emailSpec).ifPresent(u -> {
+            if (userRepository.existsByEmail(request.email())) {
                 throw new ApiException("Email already exists", HttpStatus.CONFLICT);
-            });
+            }
             existingUser.setEmail(request.email());
         }
 
