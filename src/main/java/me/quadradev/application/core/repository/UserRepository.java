@@ -17,6 +17,7 @@ import java.util.Optional;
 public interface UserRepository extends JpaRepository<User, Long>, JpaSpecificationExecutor<User> {
     List<User> findByStatus(UserStatus status);
     Optional<User> findByEmail(String email);
+    boolean existsByEmail(String email);
     @Query("SELECT u FROM User u JOIN u.roles r WHERE r.name = :roleName")
     Page<User> findUsersByRoleName(@Param("roleName") String roleName, Pageable pageable);
 }
