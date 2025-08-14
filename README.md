@@ -18,6 +18,11 @@ y `DB_PASSWORD`).
 Para restringir el acceso CORS de la API, define la variable `CORS_ALLOWED_ORIGINS`
 con una lista de orígenes separados por comas que podrán consumir los servicios.
 
+## Búsqueda de usuarios
+
+El endpoint `GET /api/users/search` permite filtrar usuarios por `email`, `status` y `name`.
+El parámetro `name` realiza coincidencias parciales sin distinguir entre mayúsculas y minúsculas.
+
 ## Licencia
 
 Este proyecto se distribuye bajo la licencia [MIT](LICENSE).

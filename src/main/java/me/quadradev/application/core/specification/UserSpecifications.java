@@ -38,7 +38,7 @@ public class UserSpecifications {
                 return null;
             }
             Join<User, Person> personJoin = root.join(User_.person, JoinType.INNER);
-            return cb.equal(personJoin.get(Person_.firstName), name);
+            return cb.like(cb.lower(personJoin.get(Person_.firstName)), "%" + name.toLowerCase() + "%");
         };
     }
 }
