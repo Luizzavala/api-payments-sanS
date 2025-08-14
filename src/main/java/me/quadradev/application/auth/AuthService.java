@@ -3,6 +3,7 @@ package me.quadradev.application.auth;
 import io.jsonwebtoken.ExpiredJwtException;
 import io.jsonwebtoken.JwtException;
 import lombok.RequiredArgsConstructor;
+import me.quadradev.application.core.model.Role;
 import me.quadradev.application.core.model.User;
 import me.quadradev.application.core.model.UserStatus;
 import me.quadradev.application.core.repository.UserRepository;
@@ -12,6 +13,10 @@ import org.springframework.http.HttpStatus;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
+
+import java.util.HashMap;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 @Service
 @RequiredArgsConstructor
@@ -34,9 +39,14 @@ public class AuthService {
             throw new ApiException("Credenciales inválidas", HttpStatus.UNAUTHORIZED);
         }
 
+        Map<String, Object> claims = new HashMap<>();
+        claims.put("id", user.getId());
+        claims.put("email", user.getEmail());
+        claims.put("roles", user.getRoles().stream().map(Role::getName).collect(Collectors.toList()));
+
         return new AuthTokens(
-                jwtProvider.generateAccessToken(email),
-                jwtProvider.generateRefreshToken(email)
+                jwtProvider.generateToken(claims, user.getEmail(), jwtProvider.getAccessTokenExpirationMs()),
+                jwtProvider.generateToken(claims, user.getEmail(), jwtProvider.getRefreshTokenExpirationMs())
         );
     }
 
@@ -62,10 +72,15 @@ public class AuthService {
                 throw new ApiException("Usuario inactivo", HttpStatus.FORBIDDEN);
             }
 
+            Map<String, Object> claims = new HashMap<>();
+            claims.put("id", user.getId());
+            claims.put("email", user.getEmail());
+            claims.put("roles", user.getRoles().stream().map(Role::getName).collect(Collectors.toList()));
+
             // Generate and return new token pair
             return new AuthTokens(
-                    jwtProvider.generateAccessToken(email),
-                    jwtProvider.generateRefreshToken(email)
+                    jwtProvider.generateToken(claims, user.getEmail(), jwtProvider.getAccessTokenExpirationMs()),
+                    jwtProvider.generateToken(claims, user.getEmail(), jwtProvider.getRefreshTokenExpirationMs())
             );
 
         } catch (ExpiredJwtException e) {
