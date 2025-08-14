@@ -21,7 +21,7 @@ public class SecurityConfig {
     private final JwtFilter jwtFilter;
     private final CorsConfigurationSource corsConfigurationSource;
 
-    @Value("${DEV_MODE}")
+    @Value("${DEV_MODE:false}")
     private boolean devMode;
 
     @Bean
